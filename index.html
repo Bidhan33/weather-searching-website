@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Weather Assignment 2</title>
+  </head>
+  <body>
+    <div id="root"></div>
+      <!-- Root container for react components -->
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
+
+    <script type="text/babel">
+      function Weather() {
+        const [weatherinfo, setWeatherInfo] = React.useState(null);
+        const [city, setCity] = React.useState('');
+
+        const fetchWeatherData = () => {
+          if (!city) return; 
+
+          fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=2ebf9086b922737bbe2646689c457126&units=metric`)
+            .then((response) => {
+              if (!response.ok) {
+                setWeatherInfo(null);
+                return;
+              }
+              return response.json();
+            })
+            .then((data) => {
+              if (data) {
+                setWeatherInfo(data);
+              }
+            })
+            .catch((error) => {
+              console.error(error);
+              setWeatherInfo(null);
+            });
+        };
+
+        const buttonhandler = () => {
+          fetchWeatherData();
+        };
+
+        const inputhandler = (event) => {
+          setCity(event.target.value);
+        };
+
+        return (
+          <React.Fragment>
+            <h3>Current Weather</h3>
+            <input
+              type="text"
+              value={city}
+              onChange={inputhandler}
+              placeholder="Enter city"
+            />
+            <button onClick={buttonhandler}>Get Weather</button>
+
+            {weatherinfo && (
+              <React.Fragment>
+                <h3>Weather in {weatherinfo.name}</h3>
+                <p>Temperature: {weatherinfo.main.temp} °C</p>
+                <p>Weather: {weatherinfo.weather[0].description}</p>
+                <img 
+                  src={`https://openweathermap.org/img/wn/${weatherinfo.weather[0].icon}@2x.png`} 
+                  alt={weatherinfo.weather[0].description} 
+                />
+              </React.Fragment>
+            )}
+          </React.Fragment>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<Weather />);
+    </script>
+  </body>
+</html>
